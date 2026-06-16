@@ -9,7 +9,9 @@ import {
   SMTP_PASS,
   MAIL_FROM,
   MAIL_TO,
+  FORM_SECRET,
 } from "astro:env/server";
+import { verifyFormToken } from "../lib/spam-guard";
 
 export const server = {
   sendTestMail: defineAction({
@@ -25,8 +27,23 @@ export const server = {
         .max(2000, "Wow, a novel. Please keep it shorter 📚"),
       // Honeypot: real humans leave this empty, bots fill it in.
       website: z.string().max(0, "Caught you, bot 🤖").optional(),
+      // Signed time token issued on render (spam protection).
+      t: z.string().optional(),
     }),
-    handler: async ({ name, email, message }) => {
+    handler: async ({ name, email, message, t }) => {
+      // GDPR-friendly spam protection: verify the signed time token before
+      // doing any work. No personal data, no third party, no storage.
+      const guard = await verifyFormToken(FORM_SECRET, t);
+      if (!guard.ok) {
+        const messages = {
+          "too-fast": "Whoa, that was fast — are you a robot? 🤖 Take a breath and try again.",
+          expired: "This form has been sitting around too long. Please reload the page 🔄",
+          "bad-signature": "That submission looks tampered with. Please reload the page 🔄",
+          malformed: "Something's off with the form. Please reload the page 🔄",
+        } as const;
+        throw new ActionError({ code: "BAD_REQUEST", message: messages[guard.reason] });
+      }
+
       const transporter = nodemailer.createTransport({
         host: SMTP_HOST,
         port: SMTP_PORT,

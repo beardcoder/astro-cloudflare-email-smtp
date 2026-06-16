@@ -1,5 +1,7 @@
 ---
 import { actions } from "astro:actions";
+import { FORM_SECRET } from "astro:env/server";
+import { issueFormToken } from "../lib/spam-guard";
 
 // Result of the most recent action submission (null on first load).
 const result = Astro.getActionResult(actions.sendTestMail);
@@ -7,6 +9,9 @@ const ok = result && !result.error;
 const errorMsg = result?.error?.message;
 
 const messageId = ok ? result.data?.messageId : null;
+
+// Signed time token for GDPR-friendly spam protection (see src/lib/spam-guard.ts).
+const formToken = await issueFormToken(FORM_SECRET);
 ---
 
 <!doctype html>
@@ -94,12 +99,19 @@ const messageId = ok ? result.data?.messageId : null;
           </label>
         </div>
 
+        {/* Signed time token – GDPR-friendly spam protection, no tracking */}
+        <input type="hidden" name="t" value={formToken} />
+
         <button type="submit">
           Fire the email&nbsp;🚀
         </button>
       </form>
 
       <footer>
+        <p>
+          🔒 Spam protection without tracking: a hidden honeypot + a server-signed
+          time token. No cookies, no third parties, no IP logging — GDPR-friendly.
+        </p>
         <p>
           Tip: to try this without a real server, use
           <a href="https://ethereal.email" target="_blank" rel="noreferrer">

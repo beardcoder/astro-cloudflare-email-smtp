@@ -28,6 +28,9 @@ export default defineConfig({
       SMTP_PASS: envField.string({ context: "server", access: "secret" }),
       MAIL_FROM: envField.string({ context: "server", access: "secret" }),
       MAIL_TO: envField.string({ context: "server", access: "secret" }),
+      // HMAC key for the spam-protection time token. Optional — falls back to a
+      // dev value, but set a real secret in production to prevent token forging.
+      FORM_SECRET: envField.string({ context: "server", access: "secret", optional: true }),
     },
   },
 });

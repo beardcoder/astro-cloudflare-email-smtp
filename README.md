@@ -7,6 +7,7 @@ Bleeding-edge stack:
 
 - **Astro 5** with `output: "server"`
 - **Astro Actions** (`astro:actions`) — typed form handler, works without JS too (progressive enhancement)
+- **GDPR-friendly spam protection** — honeypot + HMAC-signed time token, no Cloudflare bot product, no third parties, no cookies, no IP logging
 - **`astro:env`** — validated, typed secrets instead of `process.env`
 - **`@astrojs/cloudflare`** adapter + `nodejs_compat` (deploys as a Cloudflare Worker)
 - **nodemailer** over SMTP (STARTTLS 587 / TLS 465)
@@ -84,9 +85,28 @@ Also:
 
 ```
 src/
-├─ actions/index.ts   # sendTestMail – validation (zod) + nodemailer
+├─ actions/index.ts   # sendTestMail – validation (zod) + spam guard + nodemailer
+├─ lib/spam-guard.ts  # HMAC-signed time token (honeypot lives in index.astro)
 ├─ pages/index.astro  # the form & UI
 └─ env.d.ts
 astro.config.mjs       # adapter + astro:env schema
 wrangler.jsonc         # nodejs_compat + Workers config (main + assets)
+```
+
+## 🔒 Spam protection (no Cloudflare bot product, GDPR-friendly)
+
+Two layers, both fully local — nothing is sent to a third party, no cookies are
+set, no IP addresses are logged or stored:
+
+1. **Honeypot** — a hidden `website` field; bots fill it, humans don't.
+2. **Signed time token** — on render the form gets an HMAC-SHA256 signed timestamp
+   ([`src/lib/spam-guard.ts`](./src/lib/spam-guard.ts)). On submit the server checks
+   the signature is valid and the form was on screen for **2.5s–2h**. Instant or
+   forged submissions are rejected.
+
+Set a `FORM_SECRET` secret in production to harden the signature (it falls back to a
+dev value otherwise):
+
+```bash
+wrangler secret put FORM_SECRET   # any long random string
 ```

@@ -11,6 +11,9 @@
   "compatibility_date": "2025-05-05",
   "compatibility_flags": ["nodejs_compat"],
 
+  // Keep secrets/vars set in the dashboard — a deploy must NOT wipe them.
+  "keep_vars": true,
+
   // Static assets (the worker is auto-excluded from being served)
   "assets": {
     "binding": "ASSETS",

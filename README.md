@@ -49,10 +49,10 @@ wrangler secret put MAIL_FROM
 wrangler secret put MAIL_TO
 ```
 
-> **Use secrets, not plain vars.** `wrangler deploy` overwrites the remote config
-> with your local `wrangler.jsonc`, which would wipe any plaintext `vars` set in the
-> dashboard. Secrets are never touched by a deploy, so storing all values as secrets
-> survives every redeploy.
+> **Use secrets, not plain vars.** By default `wrangler deploy` overwrites the remote
+> config and wipes anything set in the dashboard. This repo sets `"keep_vars": true` in
+> [`wrangler.jsonc`](./wrangler.jsonc) so deploys leave your dashboard secrets/vars
+> alone — but still prefer **secrets** for sensitive values like `SMTP_PASS`.
 >
 > If you connect this repo via Git in the dashboard, set the build command to
 > `bun run build` — Cloudflare picks up `main` + `assets` from `wrangler.jsonc`.

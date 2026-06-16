@@ -42,13 +42,18 @@ Then add the same variables as in `.dev.vars` as **secrets**, either via the das
 ```bash
 wrangler secret put SMTP_HOST
 wrangler secret put SMTP_PORT
-wrangler secret put SMTP_SECURE
+wrangler secret put SMTP_SECURITY   # starttls | ssl | none
 wrangler secret put SMTP_USER
 wrangler secret put SMTP_PASS
 wrangler secret put MAIL_FROM
 wrangler secret put MAIL_TO
 ```
 
+> **Use secrets, not plain vars.** `wrangler deploy` overwrites the remote config
+> with your local `wrangler.jsonc`, which would wipe any plaintext `vars` set in the
+> dashboard. Secrets are never touched by a deploy, so storing all values as secrets
+> survives every redeploy.
+>
 > If you connect this repo via Git in the dashboard, set the build command to
 > `bun run build` — Cloudflare picks up `main` + `assets` from `wrangler.jsonc`.
 
@@ -68,7 +73,7 @@ which are only available via the **`nodejs_compat`** flag — already set in
 Also:
 
 - **Port 25 is blocked on Cloudflare.** Use **587** (STARTTLS) or **465** (TLS).
-- Set `SMTP_SECURE="true"` only for port 465, otherwise `"false"`.
+- Set `SMTP_SECURITY="ssl"` for port 465, otherwise `"starttls"` (port 587).
 - If outbound SMTP misbehaves with your provider: for production Cloudflare
   recommends an HTTP email service (Resend, Postmark, MailChannels …). For a
   **contact-form test**, classic SMTP via `nodemailer` is exactly right. 👍

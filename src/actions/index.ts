@@ -4,7 +4,7 @@ import nodemailer from "nodemailer";
 import {
   SMTP_HOST,
   SMTP_PORT,
-  SMTP_SECURE,
+  SMTP_SECURITY,
   SMTP_USER,
   SMTP_PASS,
   MAIL_FROM,
@@ -30,7 +30,9 @@ export const server = {
       const transporter = nodemailer.createTransport({
         host: SMTP_HOST,
         port: SMTP_PORT,
-        secure: SMTP_SECURE, // true for port 465, false for 587 (STARTTLS)
+        secure: SMTP_SECURITY === "ssl", // implicit TLS on port 465
+        requireTLS: SMTP_SECURITY === "starttls", // force STARTTLS upgrade on 587
+        ignoreTLS: SMTP_SECURITY === "none", // plain — dev/testing only
         auth: { user: SMTP_USER, pass: SMTP_PASS },
       });
 

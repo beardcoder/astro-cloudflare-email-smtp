@@ -17,7 +17,13 @@ export default defineConfig({
     schema: {
       SMTP_HOST: envField.string({ context: "server", access: "secret" }),
       SMTP_PORT: envField.number({ context: "server", access: "secret", default: 587 }),
-      SMTP_SECURE: envField.boolean({ context: "server", access: "secret", default: false }),
+      // "starttls" (port 587), "ssl" (port 465) or "none" (plain, dev only)
+      SMTP_SECURITY: envField.enum({
+        context: "server",
+        access: "secret",
+        values: ["starttls", "ssl", "none"],
+        default: "starttls",
+      }),
       SMTP_USER: envField.string({ context: "server", access: "secret" }),
       SMTP_PASS: envField.string({ context: "server", access: "secret" }),
       MAIL_FROM: envField.string({ context: "server", access: "secret" }),

@@ -5,7 +5,7 @@
 
 SMTP_HOST="smtp.ethereal.email"
 SMTP_PORT="587"
-SMTP_SECURE="false"
+SMTP_SECURITY="starttls"        # "starttls" (587), "ssl" (465) or "none"
 SMTP_USER="your-user@ethereal.email"
 SMTP_PASS="your-password"
 MAIL_FROM="SMTP Tester <test@example.com>"

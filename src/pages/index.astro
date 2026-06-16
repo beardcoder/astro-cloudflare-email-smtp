@@ -1,0 +1,294 @@
+---
+import { actions } from "astro:actions";
+
+// Result of the most recent action submission (null on first load).
+const result = Astro.getActionResult(actions.sendTestMail);
+const ok = result && !result.error;
+const errorMsg = result?.error?.message;
+
+const messageId = ok ? result.data?.messageId : null;
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>📮 SMTP Tester · Astro × Cloudflare</title>
+    <meta
+      name="description"
+      content="A tiny, silly test page for sending emails over SMTP."
+    />
+  </head>
+  <body>
+    <main>
+      <div class="glow" aria-hidden="true"></div>
+
+      <header>
+        <span class="badge">nodemailer · astro · cloudflare</span>
+        <h1>
+          Send me a <span class="grad">test mail</span>,
+          <br />you gorgeous SMTP server.
+        </h1>
+        <p class="sub">
+          Fill something in, hit send, and if the stars align (= your SMTP
+          credentials are correct) an email lands in your inbox seconds later.
+          No JavaScript required — progressive enhancement, baby. ✨
+        </p>
+      </header>
+
+      {ok && (
+        <div class="alert ok" role="status">
+          <strong>Sent! 🎉</strong>
+          <span>Message ID: <code>{messageId}</code></span>
+        </div>
+      )}
+      {errorMsg && (
+        <div class="alert err" role="alert">
+          <strong>Oops. 💥</strong>
+          <span>{errorMsg}</span>
+        </div>
+      )}
+
+      <form method="POST" action={actions.sendTestMail}>
+        <label>
+          <span>Your name</span>
+          <input
+            name="name"
+            type="text"
+            required
+            maxlength="80"
+            placeholder="Captain Contact Form"
+            autocomplete="name"
+          />
+        </label>
+
+        <label>
+          <span>Your email</span>
+          <input
+            name="email"
+            type="email"
+            required
+            placeholder="you@example.com"
+            autocomplete="email"
+          />
+        </label>
+
+        <label>
+          <span>Your message</span>
+          <textarea
+            name="message"
+            required
+            rows="5"
+            minlength="5"
+            maxlength="2000"
+            placeholder="Dear internet, does SMTP really work? Prove it."
+          ></textarea>
+        </label>
+
+        {/* Honeypot – invisible to humans, irresistible to bots */}
+        <div class="hp" aria-hidden="true">
+          <label>
+            Please leave empty
+            <input name="website" type="text" tabindex="-1" autocomplete="off" />
+          </label>
+        </div>
+
+        <button type="submit">
+          Fire the email&nbsp;🚀
+        </button>
+      </form>
+
+      <footer>
+        <p>
+          Tip: to try this without a real server, use
+          <a href="https://ethereal.email" target="_blank" rel="noreferrer">
+            Ethereal Email</a
+          > — it hands you throwaway SMTP credentials in 5 seconds.
+        </p>
+      </footer>
+    </main>
+
+    <style is:global>
+      :root {
+        --bg: #0b0e14;
+        --card: #11161f;
+        --line: #1f2733;
+        --txt: #e6edf3;
+        --muted: #8b949e;
+        --accent: #7ee787;
+        --accent2: #58a6ff;
+        color-scheme: dark;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        margin: 0;
+        padding: 0;
+        background: var(--bg);
+        color: var(--txt);
+        font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+        -webkit-font-smoothing: antialiased;
+      }
+
+      main {
+        position: relative;
+        max-width: 560px;
+        margin: 0 auto;
+        padding: clamp(2rem, 6vw, 5rem) 1.25rem 4rem;
+      }
+
+      .glow {
+        position: fixed;
+        inset: -20% 0 auto 0;
+        height: 60vh;
+        background: radial-gradient(
+          60% 60% at 50% 0%,
+          color-mix(in oklab, var(--accent) 22%, transparent),
+          transparent 70%
+        );
+        filter: blur(40px);
+        pointer-events: none;
+        z-index: -1;
+      }
+
+      .badge {
+        display: inline-block;
+        font-size: 0.72rem;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        color: var(--accent);
+        border: 1px solid color-mix(in oklab, var(--accent) 40%, transparent);
+        border-radius: 999px;
+        padding: 0.35rem 0.7rem;
+        margin-bottom: 1.4rem;
+      }
+
+      h1 {
+        font-size: clamp(1.8rem, 5vw, 2.6rem);
+        line-height: 1.1;
+        letter-spacing: -0.02em;
+        margin: 0 0 1rem;
+      }
+
+      .grad {
+        background: linear-gradient(120deg, var(--accent), var(--accent2));
+        -webkit-background-clip: text;
+        background-clip: text;
+        color: transparent;
+      }
+
+      .sub {
+        color: var(--muted);
+        line-height: 1.65;
+        margin: 0 0 2rem;
+      }
+
+      form {
+        display: grid;
+        gap: 1.1rem;
+        background: var(--card);
+        border: 1px solid var(--line);
+        border-radius: 18px;
+        padding: 1.5rem;
+      }
+
+      label {
+        display: grid;
+        gap: 0.45rem;
+        font-size: 0.85rem;
+        color: var(--muted);
+      }
+
+      input,
+      textarea {
+        width: 100%;
+        font: inherit;
+        color: var(--txt);
+        background: #0b0e14;
+        border: 1px solid var(--line);
+        border-radius: 12px;
+        padding: 0.75rem 0.9rem;
+        transition: border-color 0.15s, box-shadow 0.15s;
+        resize: vertical;
+      }
+
+      input:focus,
+      textarea:focus {
+        outline: none;
+        border-color: var(--accent2);
+        box-shadow: 0 0 0 3px color-mix(in oklab, var(--accent2) 25%, transparent);
+      }
+
+      button {
+        margin-top: 0.3rem;
+        font: inherit;
+        font-weight: 650;
+        color: #07120a;
+        background: linear-gradient(120deg, var(--accent), #4ade80);
+        border: none;
+        border-radius: 12px;
+        padding: 0.9rem 1rem;
+        cursor: pointer;
+        transition: transform 0.08s ease, filter 0.15s ease;
+      }
+
+      button:hover {
+        filter: brightness(1.08);
+      }
+
+      button:active {
+        transform: translateY(1px) scale(0.99);
+      }
+
+      .hp {
+        position: absolute;
+        left: -9999px;
+        width: 1px;
+        height: 1px;
+        overflow: hidden;
+      }
+
+      .alert {
+        display: grid;
+        gap: 0.25rem;
+        border-radius: 12px;
+        padding: 0.9rem 1rem;
+        margin-bottom: 1.4rem;
+        font-size: 0.92rem;
+        border: 1px solid var(--line);
+      }
+
+      .alert.ok {
+        background: color-mix(in oklab, var(--accent) 12%, var(--card));
+        border-color: color-mix(in oklab, var(--accent) 45%, transparent);
+      }
+
+      .alert.err {
+        background: color-mix(in oklab, #ff7b72 12%, var(--card));
+        border-color: color-mix(in oklab, #ff7b72 45%, transparent);
+      }
+
+      .alert code {
+        font-size: 0.8rem;
+        color: var(--muted);
+        word-break: break-all;
+      }
+
+      footer {
+        margin-top: 2rem;
+        color: var(--muted);
+        font-size: 0.85rem;
+        line-height: 1.6;
+      }
+
+      a {
+        color: var(--accent2);
+      }
+    </style>
+  </body>
+</html>

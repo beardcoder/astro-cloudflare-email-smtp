@@ -1,0 +1,11 @@
+{
+  // Cloudflare Pages project name (created on first deploy)
+  "name": "astro-cloudflare-email-smtp",
+
+  // IMPORTANT: nodemailer (node:net / node:tls) only runs on workerd with this flag.
+  "compatibility_date": "2025-05-05",
+  "compatibility_flags": ["nodejs_compat"],
+
+  // Output of `astro build` (the Cloudflare adapter writes to ./dist)
+  "pages_build_output_dir": "./dist"
+}

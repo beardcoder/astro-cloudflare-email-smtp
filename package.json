@@ -1,0 +1,23 @@
+{
+  "name": "astro-cloudflare-email-smtp",
+  "type": "module",
+  "version": "1.0.0",
+  "description": "Funny little SMTP / contact-form tester — Astro 5 + Astro Actions + nodemailer on Cloudflare Pages",
+  "packageManager": "bun@1.2.0",
+  "scripts": {
+    "dev": "astro dev",
+    "build": "astro build",
+    "preview": "wrangler pages dev ./dist",
+    "deploy": "astro build && wrangler pages deploy ./dist",
+    "astro": "astro"
+  },
+  "dependencies": {
+    "@astrojs/cloudflare": "^12.6.0",
+    "astro": "^5.13.0",
+    "nodemailer": "^6.9.16"
+  },
+  "devDependencies": {
+    "@types/nodemailer": "^6.4.17",
+    "wrangler": "^4.20.0"
+  }
+}

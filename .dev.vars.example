@@ -1,0 +1,12 @@
+# Local secrets for `astro dev` / `wrangler pages dev`.
+# Copy this file to `.dev.vars` and fill in real values.
+# (On Cloudflare Pages set the same variables under
+#  Settings → Variables and Secrets — do NOT commit them.)
+
+SMTP_HOST="smtp.ethereal.email"
+SMTP_PORT="587"
+SMTP_SECURE="false"
+SMTP_USER="your-user@ethereal.email"
+SMTP_PASS="your-password"
+MAIL_FROM="SMTP Tester <test@example.com>"
+MAIL_TO="you@example.com"

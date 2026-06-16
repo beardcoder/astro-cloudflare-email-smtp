@@ -8,7 +8,7 @@ Bleeding-edge stack:
 - **Astro 5** with `output: "server"`
 - **Astro Actions** (`astro:actions`) — typed form handler, works without JS too (progressive enhancement)
 - **`astro:env`** — validated, typed secrets instead of `process.env`
-- **`@astrojs/cloudflare`** adapter + `nodejs_compat`
+- **`@astrojs/cloudflare`** adapter + `nodejs_compat` (deploys as a Cloudflare Worker)
 - **nodemailer** over SMTP (STARTTLS 587 / TLS 465)
 
 ---
@@ -26,16 +26,31 @@ bun run dev                      # http://localhost:4321
 
 ---
 
-## ☁️ Deploying to Cloudflare Pages
+## ☁️ Deploying to Cloudflare Workers
+
+This deploys as a **Cloudflare Worker** (the path Cloudflare now steers everyone to —
+Pages and Workers have merged). The `@astrojs/cloudflare` adapter emits
+`dist/_worker.js/index.js`, wired up in [`wrangler.jsonc`](./wrangler.jsonc).
 
 ```bash
-bun run deploy          # = astro build && wrangler pages deploy ./dist
+bun run deploy          # = astro build && wrangler deploy
 ```
 
-Then, in the Cloudflare dashboard under **Workers & Pages → your project → Settings →
-Variables and Secrets**, add the same variables as in `.dev.vars` as **secrets**:
+Then add the same variables as in `.dev.vars` as **secrets**, either via the dashboard
+(**Workers & Pages → your Worker → Settings → Variables and Secrets**) or the CLI:
 
-`SMTP_HOST`, `SMTP_PORT`, `SMTP_SECURE`, `SMTP_USER`, `SMTP_PASS`, `MAIL_FROM`, `MAIL_TO`
+```bash
+wrangler secret put SMTP_HOST
+wrangler secret put SMTP_PORT
+wrangler secret put SMTP_SECURE
+wrangler secret put SMTP_USER
+wrangler secret put SMTP_PASS
+wrangler secret put MAIL_FROM
+wrangler secret put MAIL_TO
+```
+
+> If you connect this repo via Git in the dashboard, set the build command to
+> `bun run build` — Cloudflare picks up `main` + `assets` from `wrangler.jsonc`.
 
 ---
 
@@ -68,5 +83,5 @@ src/
 ├─ pages/index.astro  # the form & UI
 └─ env.d.ts
 astro.config.mjs       # adapter + astro:env schema
-wrangler.jsonc         # nodejs_compat + Pages config
+wrangler.jsonc         # nodejs_compat + Workers config (main + assets)
 ```
